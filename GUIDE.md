@@ -1,41 +1,63 @@
-# AI图像精确P图与蒙板替换技术
+# Dataler.com AI图像生成API使用指南 - 精确P图与蒙板替换技术
 
-基于 [Dataler.com](https://dataler.com) API 的AI图像精确P图实现，使用MASK蒙板技术实现像素级精确的产品替换。
+## 一、平台简介
 
-[![PHP](https://img.shields.io/badge/PHP-8.0+-blue.svg)](https://php.net)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+**Dataler.com** 是一家专业的第三方AI中转API平台，提供以下核心优势：
 
-## 平台推荐
-
-**Dataler.com** - 专业的第三方AI中转API平台
-- 官方2.2折价格，大幅降低AI图像生成成本
-- 对接几乎所有主流AI图像生成模型
-- 动态负载自适应，智能调度确保稳定高效
-- 兼容Gemini API格式，无缝迁移现有项目
+- **官方2.2折价格**：大幅降低AI图像生成成本
+- **全模型支持**：对接几乎所有主流AI图像生成模型
+- **动态负载自适应**：智能调度确保稳定高效的API响应
+- **兼容Gemini API格式**：无缝迁移现有项目
 
 API端点：`https://dataler.com/v1beta/models/{model}:generateContent`
 
-## 核心功能
+---
 
-### 1. AI反推Prompt
-自动分析图片生成详细的AI图像生成提示词
+## 二、核心功能详解
 
-### 2. 垫图换产品生图（Prompt替换模式）
-- 分析垫图产品特征
-- 智能融合Prompt
-- 生成新图
+### 2.1 AI反推Prompt功能
 
-### 3. 原图产品换垫图产品（双图融合模式）
-- 反推场景图（人物、光线、氛围）
-- 反推产品图（外观、材质、颜色）
-- 智能整合生成
+通过分析图片自动生成详细的AI图像生成提示词，包含：
+- 主体分析（人物/物体/场景）
+- 构图与视角
+- 色彩方案
+- 光影效果
+- 艺术风格
+- 材质纹理
+- 背景环境
+- 相机/镜头特效
 
-### 4. 精确P图 - MASK蒙板替换模式 ⭐
-**这是最精确的图像替换技术**
+### 2.2 垫图换产品生图（Prompt替换模式）
 
-## 技术原理与流程
+**流程概述**：
+1. **分析垫图产品**：AI详细分析产品图片，提取外观、材质、颜色等特征
+2. **Prompt整合**：将产品描述与用户提供的场景Prompt智能融合
+3. **生成新图**：使用新Prompt结合垫图生成最终图像
 
-### MASK蒙板替换工作流程
+**适用场景**：
+- 电商产品图替换
+- 保持场景氛围更换产品
+- 批量生成相似风格的产品展示图
+
+### 2.3 原图产品换垫图产品（双图融合模式）
+
+**流程概述**：
+1. **反推场景图**：提取完整场景、人物外貌、情绪、着装、光线等信息
+2. **反推产品图**：详细分析产品外观、尺寸、材质、颜色、结构特征
+3. **智能整合**：将产品描述融入场景描述，保持人物和场景不变
+4. **双图垫图生成**：使用新Prompt + 两张原图作为垫图生成结果
+
+**核心优势**：
+- 人物外貌100%保持一致
+- 人物情绪状态完全保留
+- 场景光线氛围不变
+- 仅替换产品外观
+
+### 2.4 精确P图 - MASK蒙板替换模式（button2核心逻辑）
+
+这是最精确的图像替换技术，适用于需要像素级控制的产品替换场景。
+
+#### 工作流程
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
@@ -66,14 +88,14 @@ API端点：`https://dataler.com/v1beta/models/{model}:generateContent`
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 详细步骤
+#### 详细步骤
 
-#### 步骤1：图片准备
+**步骤1：图片准备**
 - 读取垫图（场景图）和新产品图
 - 智能压缩（最大边1500px，保持质量同时减少传输）
 - 转换为Base64格式
 
-#### 步骤2：AI生成MASK蒙板
+**步骤2：AI生成MASK蒙板**
 
 根据用户是否提供目标描述，采用不同策略：
 
@@ -116,7 +138,7 @@ Rules:
 - Output ONLY the mask image, no text."
 ```
 
-#### 步骤3：反推产品外观特征
+**步骤3：反推产品外观特征**
 
 AI分析新产品图，提取：
 - 整体形状和轮廓
@@ -127,7 +149,7 @@ AI分析新产品图，提取：
 - 结构特征（按钮、接口、把手、铰链、缝线）
 - 产品数量和排列
 
-#### 步骤4：Inpainting精确替换
+**步骤4：Inpainting精确替换**
 
 构建包含四部分的请求：
 1. **文本指令**：详细的替换规则说明
@@ -163,27 +185,31 @@ Placement rules:
 - Preserve the exact resolution and aspect ratio of the original image"
 ```
 
-## 技术要点
+---
 
-### 蒙板生成要点
+## 三、技术要点总结
+
+### 3.1 蒙板生成要点
 - **纯黑白**：不允许灰色或渐变
 - **边缘平滑**：3-5像素的过渡边距
 - **不包含阴影**：白色区域仅包含产品本身
 - **尺寸一致**：MASK必须与原图尺寸完全相同
 
-### 产品保真要点
+### 3.2 产品保真要点
 - **形状不变**：禁止拉伸、压缩、变形
 - **比例保持**：宽高比严格保持
 - **材质还原**：颜色、纹理、反光特性100%还原
 - **结构完整**：所有可见部件必须保留
 
-### 场景融合要点
+### 3.3 场景融合要点
 - **透视匹配**：根据场景调整产品视角
 - **光影一致**：匹配场景光源方向和色温
 - **阴影自然**：添加符合光源的阴影
 - **边缘融合**：与周围环境无缝衔接
 
-## 应用场景
+---
+
+## 四、应用场景
 
 1. **电商产品替换**：模特手持产品图，快速替换不同款式
 2. **场景营销图**：保持精美场景，更换展示产品
@@ -191,96 +217,9 @@ Placement rules:
 4. **产品迭代展示**：同一角度展示产品不同配色/配置
 5. **虚拟试穿/试用**：将产品自然融入用户场景
 
-## 快速开始
+---
 
-### 环境要求
-- PHP 8.0+
-- cURL扩展
-- GD扩展（用于图片处理）
-
-### 安装
-
-```bash
-git clone https://github.com/lmj243-code/dataler-ai-image-inpainting.git
-cd dataler-ai-image-inpainting
-```
-
-### 使用方法
-
-#### 1. 基本用法（自动识别主体）
-
-```php
-require_once 'DatalerInpaintingAPI.php';
-
-$apiKey = 'your-api-key-here';
-$api = new DatalerInpaintingAPI($apiKey);
-
-$result = $api->replaceProductWithMask(
-    'scene.jpg',        // 场景图：模特手持旧产品
-    'new_product.jpg',  // 新产品图：要替换进去的产品
-    null,               // 不指定目标，自动识别
-    'output.png',       // 输出路径
-    true                // 启用压缩
-);
-```
-
-#### 2. 指定替换目标
-
-```php
-$result = $api->replaceProductWithMask(
-    'model_with_bag.jpg',   // 场景图：模特拿着红色手提包
-    'blue_bag.jpg',         // 新产品图：蓝色手提包
-    '红色手提包',            // 明确指定要替换的是红色手提包
-    'output_blue_bag.png',  // 输出路径
-    true
-);
-```
-
-#### 3. 命令行运行示例
-
-```bash
-# 运行示例1：自动识别
-php DatalerInpaintingAPI.php 1
-
-# 运行示例2：指定替换目标
-php DatalerInpaintingAPI.php 2
-
-# 运行示例3：分步调用
-php DatalerInpaintingAPI.php 3
-
-# 运行示例4：批量处理
-php DatalerInpaintingAPI.php 4
-
-# 运行示例5：自定义日志
-php DatalerInpaintingAPI.php 5
-```
-
-## API参考
-
-### DatalerInpaintingAPI类
-
-#### 构造函数
-```php
-public function __construct(string $apiKey)
-```
-
-#### 主要方法
-
-| 方法 | 说明 |
-|------|------|
-| `replaceProductWithMask()` | 一键完成完整的蒙板替换流程 |
-| `generateMask()` | AI生成MASK蒙板 |
-| `analyzeProduct()` | 反推产品外观特征 |
-| `inpaint()` | 执行Inpainting精确替换 |
-| `compressImage()` | 智能图片压缩 |
-| `imageToBase64()` | 图片转Base64 |
-
-### 支持的模型
-
-- `gemini-3-pro-image-preview`：专业图像生成模型
-- `gemini-3.1-flash-image-preview`：快速图像生成模型
-
-## 最佳实践
+## 五、最佳实践
 
 1. **图片质量**：建议使用清晰、光线均匀的产品图
 2. **描述精确**：用户提供的目标描述越详细，MASK定位越准确
@@ -288,32 +227,40 @@ public function __construct(string $apiKey)
 4. **尺寸匹配**：场景图和产品图分辨率建议相近
 5. **压缩策略**：大图片适当压缩可提升API响应速度
 
-## 文件说明
+---
 
-| 文件 | 说明 |
-|------|------|
-| `DatalerInpaintingAPI.php` | 核心API类，包含完整实现 |
-| `GUIDE.md` | 详细技术文档和原理说明 |
-| `README.md` | 项目说明文档 |
+## 六、API请求格式
 
-## 作者
+### 基础请求结构
 
-- **LT** - 初始代码和文档
+```json
+{
+  "contents": [
+    {
+      "role": "user",
+      "parts": [
+        {"text": "提示词内容"},
+        {"inlineData": {"mimeType": "image/jpeg", "data": "base64编码的图片"}}
+      ]
+    }
+  ],
+  "generationConfig": {
+    "responseModalities": ["TEXT", "IMAGE"],
+    "temperature": 0.3,
+    "maxOutputTokens": 2048,
+    "imageConfig": {
+      "aspectRatio": "1:1",
+      "imageSize": "1K"
+    }
+  }
+}
+```
 
-## 许可证
+### 支持的模型
 
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
-
-## 致谢
-
-- [Dataler.com](https://dataler.com) - 提供稳定高效的AI API服务
-- Gemini - 强大的图像生成模型
-
-## 相关链接
-
-- [Dataler.com官网](https://dataler.com)
-- [Gemini API文档](https://ai.google.dev/docs)
+- `gemini-3-pro-image-preview`：专业图像生成模型
+- `gemini-3.1-flash-image-preview`：快速图像生成模型
 
 ---
 
-**注意**：使用本代码需要Dataler.com的API Key，请访问官网获取。
+*本文档基于Dataler.com API和Gemini图像生成技术编写*
